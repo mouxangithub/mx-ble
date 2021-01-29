@@ -1,9 +1,15 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index"
+		    "path" : "pages/index/index"
+		},
+		{
+			"path": "pages/sxs/sxs"
+		},
+		{
+		    "path" : "pages/settings/settings"
 		}
-	],
+    ],
 	"globalStyle": {
 		"mp-alipay": {
 			/* 支付宝小程序特有相关 */

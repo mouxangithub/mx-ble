@@ -27,12 +27,30 @@ class Bluetooth {
 		uni.closeBluetoothAdapter();
 	}
 	/**
+	 * 根据 uuid 获取处于已连接状态的设备。
+	 * @param {Object} services
+	 */
+	getConnectedBluetoothDevices(services) {
+		return new Promise((resolve, reject) => {
+			uni.getConnectedBluetoothDevices({
+				services,
+				success(res) {
+					resolve(res.devices)
+				},
+				fail(err) {
+					reject(err)
+				}
+			});
+		});
+	}
+	/**
 	 * 搜索蓝牙
 	 */
 	startBluetoothDevicesDiscovery() {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
 				uni.startBluetoothDevicesDiscovery({
+					allowDuplicatesKey: true, // 启用重复上报方便删除后可快速拿到设备
 					success: res => {
 						resolve(true)
 					},
@@ -60,9 +78,9 @@ class Bluetooth {
 	}
 	/**
 	 * 连接低功耗蓝牙设备
+	 * @param {String} deviceId
 	 */
 	createBLEConnection(deviceId) {
-		let self = this;
 		return new Promise((resolve, reject) => {
 			uni.createBLEConnection({
 				deviceId,
@@ -77,14 +95,25 @@ class Bluetooth {
 	}
 	/**
 	 * 断开连接的设备
+	 * @param {String} deviceId
 	 */
 	closeBLEConnection(deviceId) {
-		uni.closeBLEConnection({
-			deviceId
+		return new Promise((resolve, reject) => {
+			uni.closeBLEConnection({
+				deviceId,
+				success: async res => {
+					resolve(true)
+				},
+				fail: err => {
+					reject(err);
+				}
+			})
 		})
 	}
 	/**
 	 * 获取蓝牙设备所有服务(service) uuid 搜索对应的服务uuid
+	 * @param {String} deviceId
+	 * @param {String} serviceId
 	 */
 	getBLEDeviceServices(deviceId, serviceId) {
 		let self = this;
@@ -117,6 +146,9 @@ class Bluetooth {
 	}
 	/**
 	 * 获取蓝牙设备某个服务中所有特征值(characteristic)
+	 * @param {String} deviceId
+	 * @param {String} serviceId
+	 * @param {String} characteristicId
 	 */
 	getBLEDeviceCharacteristics(deviceId, serviceId, characteristicId) {
 		let self = this;
@@ -125,7 +157,7 @@ class Bluetooth {
 				deviceId,
 				serviceId,
 				success: async res => {
-					if (characteristicId) {
+					if (!characteristicId) {
 						return resolve(res.characteristics)
 					}
 					let sure = false;
@@ -147,6 +179,9 @@ class Bluetooth {
 	}
 	/**
 	 * 启用低功耗蓝牙设备特征值变化时的 notify 功能，订阅特征值
+	 * @param {String} deviceId
+	 * @param {String} serviceId
+	 * @param {String} characteristicId
 	 */
 	notifyBLECharacteristicValueChange(deviceId, serviceId, characteristicId) {
 		return new Promise((resolve, reject) => {
@@ -166,6 +201,8 @@ class Bluetooth {
 	}
 	/**
 	 * 设置蓝牙最大传输单元
+	 * @param {String} deviceId
+	 * @param {Number} mtu
 	 */
 	setBLEMTU(deviceId, mtu) {
 		return new Promise((resolve, reject) => {
@@ -180,6 +217,9 @@ class Bluetooth {
 	}
 	/**
 	 * 读取低功耗蓝牙设备的特征值的二进制数据值。注意：必须设备的特征值支持 read 才可以成功调用
+	 * @param {String} deviceId
+	 * @param {String} serviceId
+	 * @param {String} characteristicId
 	 */
 	readBLECharacteristicValue(deviceId, serviceId, characteristicId) {
 		wx.readBLECharacteristicValue({
@@ -193,6 +233,10 @@ class Bluetooth {
 	}
 	/**
 	 * 向低功耗蓝牙设备特征值中写入二进制数据
+	 * @param {String} deviceId
+	 * @param {String} serviceId
+	 * @param {String} characteristicId
+	 * @param {Buffer} value
 	 */
 	writeBLECharacteristicValue(deviceId, serviceId, characteristicId, value) {
 		uni.writeBLECharacteristicValue({
@@ -207,7 +251,7 @@ class Bluetooth {
 	}
 	/**
 	 * ArrayBuffer转16进度字符串示例
-	 * @param {}  buffer
+	 * @param {Buffer} abValue
 	 */
 	ab2Weight(abValue) {
 		let characteristicValue = this.ab2hex(abValue);
@@ -231,8 +275,7 @@ class Bluetooth {
 			trimedStr;
 		var len = rawStr.length;
 		if (len % 2 !== 0) {
-			alert("Illegal Format ASCII Code!");
-			return "";
+			return "Illegal Format ASCII Code!";
 		}
 		var curCharCode;
 		var resultStr = [];

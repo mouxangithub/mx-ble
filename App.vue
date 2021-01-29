@@ -2,6 +2,8 @@
 import Vue from 'vue';
 export default {
 	onLaunch: function() {
+		// 初始化蓝牙
+		this.$store.dispatch('initialization')
 		uni.getSystemInfo({
 			success: function(e) {
 				// #ifndef MP

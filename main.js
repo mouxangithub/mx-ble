@@ -1,17 +1,23 @@
 import Vue from 'vue'
 import App from './App'
 
-Vue.config.productionTip = false
+import store from '@/store';
 
 import cuCustom from './components/cu-custom.vue'
 Vue.component('cu-custom', cuCustom)
 
-import bluetoothSettings from './components/bluetooth-settings.vue'
-Vue.component('bluetooth-settings', bluetoothSettings)
+import drawerSettings from './components/drawer-settings.vue'
+Vue.component('drawer-settings', drawerSettings)
+
+import bluetooth from './components/bluetooth.vue'
+Vue.component('bluetooth', bluetooth)
+
+Vue.config.productionTip = false
 
 App.mpType = 'app'
 
 const app = new Vue({
-	...App
+	...App,
+	store
 })
 app.$mount()

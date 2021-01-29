@@ -6,7 +6,8 @@
 					<text class="cuIcon-back"></text>
 					<slot name="backText"></slot>
 				</view>
-				<!--  #ifdef APP-PLUS -->
+				<!--  #ifndef MP -->
+				<!-- 小程序右边有胶囊 -->
 				<view v-else />
 				<!--  #endif -->
 				<view class="content" :style="[{ top: StatusBar + 'px' }]"><slot name="content"></slot></view>
