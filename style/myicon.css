@@ -1,0 +1,23 @@
+@font-face {
+  font-family: "mx"; /* Project id 2522138 */
+  src: url('~@/style/iconfont.eot?t=1619755152999'); /* IE9 */
+  src: url('~@/style/iconfont.eot?t=1619755152999#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('~@/style/iconfont.woff?t=1619755152999') format('woff'),
+       url('~@/style/iconfont.ttf?t=1619755152999') format('truetype'),
+       url('~@/style/iconfont.svg?t=1619755152999#mx') format('svg');
+}
+ 
+[class*="mx-"] {
+	font-family: "mx";
+	font-weight: bold;
+	font-size: inherit;
+	font-style: normal;
+}
+
+.mx-printer:before {
+	content: "\e61d";
+}
+
+.mx-balance:before {
+	content: "\e612";
+}

@@ -4,10 +4,10 @@
 		    "path" : "pages/index/index"
 		},
 		{
-			"path": "pages/sxs/sxs"
+		    "path" : "pages/printer/printer"
 		},
 		{
-		    "path" : "pages/settings/settings"
+			"path": "pages/balance/balance"
 		}
     ],
 	"globalStyle": {
@@ -17,7 +17,7 @@
 			"allowsBounceVertical": "NO"
 		},
 		"navigationBarBackgroundColor": "#0081ff",
-		"navigationBarTitleText": "山星盛蓝牙电子秤",
+		"navigationBarTitleText": "MX蓝牙模块",
 		"navigationStyle": "custom",
 		"navigationBarTextStyle": "white"
 	}

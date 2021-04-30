@@ -1,5 +1,5 @@
 {
-    "name" : "山星盛蓝牙电子秤",
+    "name" : "MX蓝牙模块",
     "appid" : "__UNI__5930B00",
     "description" : "",
     "versionName" : "1.0.0",
@@ -63,7 +63,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "",
+        "appid" : "wx120af233099b7ea6",
         "setting" : {
             "urlCheck" : true,
             "es6" : true,

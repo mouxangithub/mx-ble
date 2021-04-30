@@ -13,11 +13,11 @@ export default {
 		manufacturer: manufacturer.data, // 厂商设备
 	},
 	getters: {
-		getIsOpenBle: state => state.isOpenBle,
-		getPaired: state => state.paired,
-		getBledd: state => state.bledd,
-		getDevicesList: state => state.devicesList,
-		getManufacturer: state => state.manufacturer
+		isOpenBle: state => state.isOpenBle,
+		paired: state => state.paired,
+		bledd: state => state.bledd,
+		devicesList: state => state.devicesList,
+		manufacturer: state => state.manufacturer
 	},
 	mutations: {
 		/**
@@ -155,7 +155,7 @@ export default {
 			var bledd = state.bledd
 			// 开启搜索
 			if (!bledd) {
-				if(!state.isOpenBle) {
+				if (!state.isOpenBle) {
 					uni.showToast({
 						title: '请先打开蓝牙',
 						icon: 'none',

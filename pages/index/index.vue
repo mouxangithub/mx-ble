@@ -1,17 +1,16 @@
-<template name="components">
+<template>
 	<view>
-		<scroll-view scroll-y class="page">
-			<image src="/static/bgs.png" mode="widthFix" class="response"></image>
-			<!-- <view style="position: fixed;font-size: 100rpx;top: 160rpx;width: 100%;text-align: center;color: #fff;">蓝牙模块</view> -->
+		<image src="/static/bgs.png" mode="widthFix" class="response"></image>
+		<scroll-view scroll-y style="height: 60vh;">
 			<view class="nav-list">
-				<navigator hover-class='none' :url="'/pages/' + item.name + '/' + item.name" class="nav-li" navigateTo :class="'bg-'+item.color"
-				 :style="[{animation: 'show ' + ((index+1)*0.2+1) + 's 1'}]" v-for="(item,index) in elements" :key="index">
+				<navigator hover-class='none' :url="'/pages/' + item.name + '/' + item.name" class="nav-li" navigateTo
+					:class="'bg-'+item.color" :style="[{animation: 'show ' + ((index+1)*0.2+1) + 's 1'}]"
+					v-for="(item,index) in elements" :key="index">
 					<view class="nav-title">{{item.title}}</view>
 					<view class="nav-name">{{item.name}}</view>
-					<text :class="'cuIcon-' + item.cuIcon"></text>
+					<text :class="item.cuIcon"></text>
 				</navigator>
 			</view>
-			<view class="cu-tabbar-height"></view>
 		</scroll-view>
 	</view>
 </template>
@@ -21,16 +20,16 @@
 		data() {
 			return {
 				elements: [{
-						title: '山星盛',
-						name: 'sxs',
+						title: '电子秤',
+						name: 'balance',
 						color: 'blue',
-						cuIcon: 'shake'
+						cuIcon: 'mx-balance'
 					},
 					{
-						title: '蓝牙设置',
-						name: 'settings',
-						color: 'red',
-						cuIcon: 'settings'
+						title: '打印机',
+						name: 'printer',
+						color: 'green',
+						cuIcon: 'mx-printer'
 					}
 				],
 			};
@@ -41,5 +40,12 @@
 <style>
 	.page {
 		height: 100vh;
+	}
+	.bottom {
+		position: fixed;
+		bottom: 10rpx;
+		text-align: center;
+		width: 100%;
+		color: #9f9f9f;
 	}
 </style>

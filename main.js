@@ -3,14 +3,11 @@ import App from './App'
 
 import store from '@/store';
 
-import cuCustom from './components/cu-custom.vue'
-Vue.component('cu-custom', cuCustom)
+import navigationbar from './components/navigationbar.vue'
+Vue.component('navigationbar', navigationbar)
 
-import drawerSettings from './components/drawer-settings.vue'
-Vue.component('drawer-settings', drawerSettings)
-
-import bluetooth from './components/bluetooth.vue'
-Vue.component('bluetooth', bluetooth)
+import bleModal from './components/ble-modal.vue'
+Vue.component('ble-modal', bleModal)
 
 Vue.config.productionTip = false
 

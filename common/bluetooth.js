@@ -4,6 +4,7 @@
  * 该插件为MIT开源，仅供学习交流
  * 如作它用所承受的法律责任一概与作者无关
  */
+const base = require('./base64gb2312');
 class Bluetooth {
 	/**
 	 * 初始化蓝牙模块
@@ -128,7 +129,8 @@ class Bluetooth {
 						}
 						let sure = false;
 						for (let i = 0; i < res.services.length; i++) {
-							if (res.services[i].uuid.toUpperCase().indexOf(serviceId) != -1) {
+							if (res.services[i].uuid.toUpperCase().indexOf(serviceId) !=
+								-1) {
 								sure = true
 								break;
 							}
@@ -162,7 +164,8 @@ class Bluetooth {
 					}
 					let sure = false;
 					for (var i = 0; i < res.characteristics.length; i++) {
-						if (res.characteristics[i].uuid.toUpperCase().indexOf(characteristicId) != -1) {
+						if (res.characteristics[i].uuid.toUpperCase().indexOf(
+								characteristicId) != -1) {
 							sure = true
 							break;
 						}
@@ -210,7 +213,7 @@ class Bluetooth {
 				deviceId,
 				mtu,
 				success(res) {
-
+					resolve(true)
 				}
 			})
 		})
@@ -239,13 +242,67 @@ class Bluetooth {
 	 * @param {Buffer} value
 	 */
 	writeBLECharacteristicValue(deviceId, serviceId, characteristicId, value) {
-		uni.writeBLECharacteristicValue({
-			deviceId, //蓝牙设备 id
-			serviceId, //蓝牙特征值对应服务的 uuid
-			characteristicId,
-			value,
-			success(res) {
-				console.log(res)
+		return new Promise((resolve, reject) => {
+			uni.writeBLECharacteristicValue({
+				deviceId, //蓝牙设备 id
+				serviceId, //蓝牙特征值对应服务的 uuid
+				characteristicId,
+				value,
+				success(res) {
+					resolve(true)
+				}
+			})
+		})
+	}
+	/**
+	 * 打印机将CPCL指令转换成buff
+	 * @param {String} t cpcl指令
+	 */
+	tfmbuffer(t) {
+		let a = [],
+			n = 0
+		for (; n < Math.ceil(t.length / 10); n++) {
+			a[n] = wx.base64ToArrayBuffer(base.encode64gb2312(t.substr(n * 10, 10)));
+		}
+		return a;
+	}
+	/**
+	 * 匹配对应操作权限的特征
+	 * @param {String} deviceId 蓝牙设备 id
+	 * @param {String} properti 需要匹配的操作权限（write,read,notify,indicate）
+	 */
+	getProperti(deviceId, properti = 'write') {
+		return new Promise(async (resolve, reject) => {
+			try {
+				var services = await this.getBLEDeviceServices(deviceId)
+				if (services.length > 0) {
+					for (var i = 0; i < services.length; i++) {
+						if (services[i].isPrimary) {
+							var res = await this.getBLEDeviceCharacteristics(deviceId,
+								services[i]
+								.uuid)
+							if (res.length > 0) {
+								for (var s = 0; s < res.length; s++) {
+									if (res[s].properties.write) {
+										return resolve({
+											characteristicId: res[s].uuid,
+											serviceId: services[i].uuid
+										})
+									}
+								}
+							}
+						}
+					}
+					reject({
+						errMsg: `该设备无${properti}权限，可能无法使用该功能`
+					})
+				} else {
+					reject({
+						errMsg: '获取设备服务失败'
+					})
+				}
+			} catch (err) {
+				reject(err)
 			}
 		})
 	}
@@ -253,7 +310,7 @@ class Bluetooth {
 	 * ArrayBuffer转16进度字符串示例
 	 * @param {Buffer} abValue
 	 */
-	ab2Weight(abValue) {
+	getWeight(abValue) {
 		let characteristicValue = this.ab2hex(abValue);
 		let strValue = this.hexCharCodeToStr(characteristicValue)
 		return strValue
@@ -284,6 +341,58 @@ class Bluetooth {
 			resultStr.push(String.fromCharCode(curCharCode));
 		}
 		return resultStr.join("");
+	}
+	/**
+	 * 蓝牙连接操作异常报错合集
+	 * @param {Object} code
+	 */
+	bleerrcode(code) {
+		var msg = ''
+		switch (code) {
+			case 0:
+				msg = '正常'
+				break;
+			case -1:
+				msg = '已连接'
+				break;
+			case 10000:
+				msg = '未初始化蓝牙适配器'
+				break;
+			case 10001:
+				msg = '当前蓝牙适配器不可用'
+				break;
+			case 10002:
+				msg = '没有找到指定设备'
+				break;
+			case 10003:
+				msg = '连接失败'
+				break;
+			case 10004:
+				msg = '没有找到指定服务'
+				break;
+			case 10005:
+				msg = '没有找到指定特征值'
+				break;
+			case 10006:
+				msg = '当前连接已断开'
+				break;
+			case 10007:
+				msg = '当前特征值不支持此操作'
+				break;
+			case 10008:
+				msg = '系统上报异常'
+				break;
+			case 10009:
+				msg = '系统版本低于4.3不支持蓝牙'
+				break;
+			case 10012:
+				msg = '连接超时'
+				break;
+			case 10013:
+				msg = '连接deviceId为空或者是格式不正确'
+				break;
+		}
+		return msg
 	}
 }
 
