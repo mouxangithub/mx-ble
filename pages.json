@@ -4,10 +4,10 @@
 		    "path" : "pages/index/index"
 		},
 		{
-		    "path" : "pages/printer/printer"
+		    "path" : "pages/balance/balance"
 		},
 		{
-			"path": "pages/balance/balance"
+		    "path" : "pages/printer/printer"
 		}
     ],
 	"globalStyle": {
@@ -18,7 +18,7 @@
 		},
 		"navigationBarBackgroundColor": "#0081ff",
 		"navigationBarTitleText": "MX蓝牙模块",
-		"navigationStyle": "custom",
+		"navigationStyle": "custom", // 隐藏原生导航栏
 		"navigationBarTextStyle": "white"
 	}
 }

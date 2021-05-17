@@ -3,41 +3,80 @@
 		<navigationbar :isBack="true" title="电子秤" />
 		<view class="cu-bar bg-white margin radius shadow">
 			<view class="action">
-				<text class="cuIcon-titles" :class="[paired[0] && paired[0].status ? 'text-green' : 'text-red']" />
+				<text class="cuIcon-titles" :class="device ? 'text-green' : 'text-red'" />
 				电子秤
 			</view>
-			<button class="cu-btn margin-right radius" @tap="opble">请选择</button>
+			<button class="cu-btn margin-right radius" :class="device?'bg-green':''"
+				@tap="show = true">{{device?device.name:'请选择'}}</button>
 		</view>
-		<view class="flex justify-center align-center" style="height: 70vh;">
+		<view class="flex justify-center align-center" style="height: 68vh;">
 			<view class="cit bg-white shadow">
-				<canvas canvas-id="canvasGauge" id="canvasGauge" class="charts" />
+				<image v-if="show" class="charts" :src="chartsimg" />
+				<canvas :style="show?'position: fixed;left: 10000rpx;':''" canvas-id="balance" id="balance"
+					class="charts" />
 			</view>
 		</view>
 		<button class="cu-btn bottom lg bg-gradual-blue shadow radius" @tap="changeGaugeData(0)">重置</button>
-		<ble-modal v-model="show" />
+		<ble-modal v-model="show" @connect="connect" />
 	</view>
 </template>
 
 <script>
-	import uCharts from '@/common/u-charts/u-charts.js';
+	import uCharts from '@/common/u-charts.js';
+	import common from '@/common/common.js';
 	let _self,
-		canvasObj = {}
+		balance = null;
+	/**
+	 * ArrayBuffer转16进度字符串
+	 * @param {Buffer} abValue
+	 */
+	function getWeight(cpcl) {
+		let characteristicValue = ab2hex(cpcl);
+		let strValue = hexCharCodeToStr(characteristicValue)
+		return strValue
+	}
+	function ab2hex(buffer) {
+		let hexArr = Array.prototype.map.call(
+			new Uint8Array(buffer),
+			bit => {
+				return ('00' + bit.toString(16)).slice(-2)
+			}
+		)
+		return hexArr.join('');
+	}
+	function hexCharCodeToStr(hexCharCodeStr) {
+		var trimedStr = hexCharCodeStr.trim();
+		var rawStr =
+			trimedStr.substr(0, 2).toLowerCase() === "0x" ?
+			trimedStr.substr(2) :
+			trimedStr;
+		var len = rawStr.length;
+		if (len % 2 !== 0) {
+			return "Illegal Format ASCII Code!";
+		}
+		var curCharCode;
+		var resultStr = [];
+		for (var i = 0; i < len; i = i + 2) {
+			curCharCode = parseInt(rawStr.substr(i, 2), 16); // ASCII Code Value
+			resultStr.push(String.fromCharCode(curCharCode));
+		}
+		return resultStr.join("");
+	}
 	export default {
 		data() {
 			return {
 				show: false,
 				paired: [],
 				weight: '0kg',
-				cWidth: uni.upx2px(500),
-				cHeight: uni.upx2px(500),
-				gaugeWidth: uni.upx2px(30)
+				chartsimg: ''
 			};
 		},
 		onLoad() {
 			_self = this;
-		},
-		onReady() {
 			this.showGauge();
+			balance.addEventListener('renderComplete', () => {
+				this.canvasToTempFilePath()
+			});
 		},
 		watch: {
 			weight(e) {
@@ -48,35 +87,51 @@
 			opble() {
 				this.show = true
 			},
-			// // 检测重量
-			// async notifyBLECharacteristicValueChange(item) {
-			// 	let self = this;
-			// 	try {
-			// 		// 检测服务
-			// 		await blews.getBLEDeviceServices(item.deviceId, item.serviceId);
-			// 		await blews.getBLEDeviceCharacteristics(item.deviceId, item.serviceId, item.characteristicId);
-			// 		// 启用notify，必须先启用notify才能调用onBLECharacteristicValueChange
-			// 		await blews.notifyBLECharacteristicValueChange(item.deviceId, item.serviceId, item
-			// 			.characteristicId);
-			// 		uni.onBLECharacteristicValueChange(function(res) {
-			// 			self.weight = blews.getWeight(res.value);
-			// 		});
-			// 	} catch (err) {
-			// 		uni.showToast({
-			// 			title: e.errMsg,
-			// 			icon: 'none',
-			// 			position: 'bottom'
-			// 		});
-			// 	}
-			// },
+			// 连接设备
+			async connect(item) {
+				try {
+					// 目前作者只测试了山星盛的蓝牙电子秤，所以此处先写死，如有其他厂商的可自行更改研究
+					var {
+						serviceId,
+						characteristicId
+					} = require('@/demo/sxsBalance.js')
+					await this.$store.dispatch('createBLEConnection', item)
+					await this.$store.dispatch('checkDeviceService', {
+						deviceId: item.deviceId,
+						serviceId,
+						characteristicId
+					})
+					item.serviceId = serviceId
+					item.characteristicId = characteristicId
+					this.device = item
+					this.notifyBLECharacteristicValueChange(item)
+				} catch (err) {}
+			},
+			// 监听重量
+			async notifyBLECharacteristicValueChange(item) {
+				let self = this;
+				try {
+					// 启用notify，必须先启用notify才能调用onBLECharacteristicValueChange
+					await this.$store.dispatch('openNotify', {
+						deviceId: item.deviceId,
+						serviceId: item.serviceId,
+						characteristicId: item.characteristicId
+					})
+					uni.onBLECharacteristicValueChange(function(res) {
+						self.weight = blews.getWeight(res.value);
+					});
+				} catch (err) {}
+			},
+			// 初始化图表
 			showGauge() {
-				canvasObj['canvasGauge'] = new uCharts({
+				var weight = this.weight
+				balance = new uCharts({
 					$this: _self,
-					canvasId: 'canvasGauge',
+					canvasId: 'balance',
 					type: 'gauge',
 					fontSize: 11,
 					title: {
-						name: '0kg',
+						name: weight,
 						offsetY: 60
 					},
 					subtitle: {
@@ -88,7 +143,7 @@
 						// 仪表盘相关配置
 						gauge: {
 							type: 'default', // 仪表盘样式
-							width: _self.gaugeWidth, //仪表盘背景的宽度
+							width: uni.upx2px(30), //仪表盘背景的宽度
 							startAngle: 0.75, // 仪表盘起始角度
 							endAngle: 0.25, // 仪表盘结束角度
 							startNumber: 0, // 仪表盘起始数值
@@ -97,14 +152,14 @@
 								// 仪表盘刻度线配置
 								fixRadius: 0, // 仪表盘刻度线径向偏移量
 								splitNumber: 15, // 仪表盘刻度线分段总数量
-								width: _self.gaugeWidth, //仪表盘背景的宽度
+								width: uni.upx2px(30), //仪表盘背景的宽度
 								color: '#FFFFFF', // 仪表盘分割线颜色
 								childNumber: 5, // 仪表盘子刻度线数量
-								childWidth: _self.gaugeWidth * 0.4 //仪表盘背景的宽度
+								childWidth: uni.upx2px(30) * 0.4 //仪表盘背景的宽度
 							},
 							pointer: {
 								// 仪表盘指针配置
-								width: _self.gaugeWidth * 0.8, //指针宽度
+								width: uni.upx2px(30) * 0.8, //指针宽度
 								color: 'auto'
 							}
 						}
@@ -125,16 +180,17 @@
 					],
 					series: [{
 						name: '重量',
-						data: 0
+						data: parseFloat(weight)
 					}],
 					animation: true,
-					width: _self.cWidth,
-					height: _self.cHeight,
+					width: uni.upx2px(500),
+					height: uni.upx2px(500),
 					dataLabel: true
 				});
 			},
+			// 更新图表数据
 			changeGaugeData(weight) {
-				canvasObj['canvasGauge'].updateData({
+				balance.updateData({
 					series: [{
 						name: '重量',
 						data: weight / 1500
@@ -144,6 +200,15 @@
 						offsetY: 60
 					}
 				});
+			},
+			// 保存转换成图片
+			canvasToTempFilePath() {
+				uni.canvasToTempFilePath({
+					canvasId: 'balance',
+					success: res => {
+						this.chartsimg = res.tempFilePath
+					}
+				}, _self);
 			}
 		}
 	};

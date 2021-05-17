@@ -4,7 +4,6 @@
  * 该插件为MIT开源，仅供学习交流
  * 如作它用所承受的法律责任一概与作者无关
  */
-const base = require('./base64gb2312');
 class Bluetooth {
 	/**
 	 * 初始化蓝牙模块
@@ -255,94 +254,6 @@ class Bluetooth {
 		})
 	}
 	/**
-	 * 打印机将CPCL指令转换成buff
-	 * @param {String} t cpcl指令
-	 */
-	tfmbuffer(t) {
-		let a = [],
-			n = 0
-		for (; n < Math.ceil(t.length / 10); n++) {
-			a[n] = wx.base64ToArrayBuffer(base.encode64gb2312(t.substr(n * 10, 10)));
-		}
-		return a;
-	}
-	/**
-	 * 匹配对应操作权限的特征
-	 * @param {String} deviceId 蓝牙设备 id
-	 * @param {String} properti 需要匹配的操作权限（write,read,notify,indicate）
-	 */
-	getProperti(deviceId, properti = 'write') {
-		return new Promise(async (resolve, reject) => {
-			try {
-				var services = await this.getBLEDeviceServices(deviceId)
-				if (services.length > 0) {
-					for (var i = 0; i < services.length; i++) {
-						if (services[i].isPrimary) {
-							var res = await this.getBLEDeviceCharacteristics(deviceId,
-								services[i]
-								.uuid)
-							if (res.length > 0) {
-								for (var s = 0; s < res.length; s++) {
-									if (res[s].properties.write) {
-										return resolve({
-											characteristicId: res[s].uuid,
-											serviceId: services[i].uuid
-										})
-									}
-								}
-							}
-						}
-					}
-					reject({
-						errMsg: `该设备无${properti}权限，可能无法使用该功能`
-					})
-				} else {
-					reject({
-						errMsg: '获取设备服务失败'
-					})
-				}
-			} catch (err) {
-				reject(err)
-			}
-		})
-	}
-	/**
-	 * ArrayBuffer转16进度字符串示例
-	 * @param {Buffer} abValue
-	 */
-	getWeight(abValue) {
-		let characteristicValue = this.ab2hex(abValue);
-		let strValue = this.hexCharCodeToStr(characteristicValue)
-		return strValue
-	}
-	ab2hex(buffer) {
-		let hexArr = Array.prototype.map.call(
-			new Uint8Array(buffer),
-			bit => {
-				return ('00' + bit.toString(16)).slice(-2)
-			}
-		)
-		return hexArr.join('');
-	}
-	hexCharCodeToStr(hexCharCodeStr) {
-		var trimedStr = hexCharCodeStr.trim();
-		var rawStr =
-			trimedStr.substr(0, 2).toLowerCase() === "0x" ?
-			trimedStr.substr(2) :
-			trimedStr;
-		var len = rawStr.length;
-		if (len % 2 !== 0) {
-			return "Illegal Format ASCII Code!";
-		}
-		var curCharCode;
-		var resultStr = [];
-		for (var i = 0; i < len; i = i + 2) {
-			curCharCode = parseInt(rawStr.substr(i, 2), 16); // ASCII Code Value
-			resultStr.push(String.fromCharCode(curCharCode));
-		}
-		return resultStr.join("");
-	}
-	/**
 	 * 蓝牙连接操作异常报错合集
 	 * @param {Object} code
 	 */
@@ -380,7 +291,7 @@ class Bluetooth {
 				msg = '当前特征值不支持此操作'
 				break;
 			case 10008:
-				msg = '系统上报异常'
+				msg = '系统上报异常,请稍后尝试'
 				break;
 			case 10009:
 				msg = '系统版本低于4.3不支持蓝牙'
