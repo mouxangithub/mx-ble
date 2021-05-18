@@ -9,6 +9,7 @@
 			<button class="cu-btn margin-right radius" :class="device?'bg-green':''"
 				@tap="show = true">{{device?device.name:'请选择'}}</button>
 		</view>
+		<ble-modal v-model="show" @connect="connect" />
 		<view class="flex justify-center align-center" style="height: 68vh;">
 			<view class="cit bg-white shadow">
 				<image v-if="show" class="charts" :src="chartsimg" />
@@ -17,7 +18,6 @@
 			</view>
 		</view>
 		<button class="cu-btn bottom lg bg-gradual-blue shadow radius" @tap="changeGaugeData(0)">重置</button>
-		<ble-modal v-model="show" @connect="connect" />
 	</view>
 </template>
 
@@ -35,6 +35,7 @@
 		let strValue = hexCharCodeToStr(characteristicValue)
 		return strValue
 	}
+
 	function ab2hex(buffer) {
 		let hexArr = Array.prototype.map.call(
 			new Uint8Array(buffer),
@@ -44,6 +45,7 @@
 		)
 		return hexArr.join('');
 	}
+
 	function hexCharCodeToStr(hexCharCodeStr) {
 		var trimedStr = hexCharCodeStr.trim();
 		var rawStr =
@@ -66,6 +68,7 @@
 		data() {
 			return {
 				show: false,
+				device: null,
 				paired: [],
 				weight: '0kg',
 				chartsimg: ''

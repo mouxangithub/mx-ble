@@ -60,6 +60,20 @@
 <script>
 	import common from '@/common/common.js';
 	let time = null
+	/**
+	 * 将CPCL指令转换成buff然后进行分包发送给打印机
+	 * @param {String} t cpcl指令
+	 * uni的app端不知道为啥在此无法使用转换，用uni.base64ToArrayBuffer还是我自己封装的都是无法转换，小程序就正常
+	 * 目前研究的结果就是app端将ArrayBuffer转换成了object类型，而且小程序是ArrayBuffer的string写入的
+	 */
+	function tfmbuffer(t) {
+		const base = require('@/common/base64gb2312.js');
+		let a = []
+		for (let n = 0; n < Math.ceil(t.length / 10); n++) {
+			a[n] = base.base64ToArrayBuffer(base.encode64gb2312(t.substr(n * 10, 10)));
+		}
+		return a;
+	}
 	export default {
 		data() {
 			return {
@@ -94,26 +108,30 @@
 			}, 800)
 		},
 		methods: {
+			// 打开蓝牙弹窗搜索
+			opble() {
+				this.show = true
+			},
+			// 打开cpcl代码视图
+			openCode(id) {
+				var cpcl_demo = require(`@/demo/cpcl-demo${id}.js`)
+				this.codeShow = true
+				this.cpclCode = cpcl_demo.val
+			},
+			// 关闭视图
 			closcode() {
 				setTimeout(() => {
 					this.cpclCode = ''
 				}, 300)
 				this.codeShow = false
 			},
-			openCode(id) {
-				var cpcl_demo = require(`@/demo/cpcl-demo${id}.js`)
-				this.codeShow = true
-				this.cpclCode = cpcl_demo.val
-			},
+			// 关闭说明弹窗
 			closedom() {
 				clearInterval(time)
 				setTimeout(() => {
 					this.countdown = ''
 				}, 1000)
 				this.dom = false
-			},
-			opble() {
-				this.show = true
 			},
 			// 连接设备
 			async connect(item) {
@@ -147,13 +165,33 @@
 						title: '打印中...',
 						mask: true
 					})
-					await this.$store.dispatch('printing', {
-						val,
-						device
-					})
-					common.showToast('打印成功')
+					let buffer = tfmbuffer(val);
+					const maxChunk = 20;
+					for (let c = 0; c < buffer.length; c++) {
+						let i = 0,
+							j = 0,
+							length = buffer[c].byteLength
+						for (; i < length; i += maxChunk, j++) {
+							let subPackage = buffer[c].slice(i, i + maxChunk <= length ? (i + maxChunk) : length);
+							setTimeout(subPackage => {
+								uni.writeBLECharacteristicValue({
+									deviceId: device.deviceId,
+									characteristicId: device.characteristicId,
+									serviceId: device.serviceId,
+									value: subPackage,
+									success(e) {
+										if (c >= (buffer.length - 1)) {
+											common.showToast('打印成功')
+										}
+									},
+									fail(err) {
+										return common.showToast('打印失败')
+									}
+								})
+							}, 20, subPackage);
+						}
+					}
 				} catch (err) {
-					console.log(err)
 					common.showToast('打印失败')
 				}
 			}

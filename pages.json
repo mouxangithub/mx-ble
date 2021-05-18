@@ -1,15 +1,18 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-		    "path" : "pages/index/index"
+			"path": "pages/sphygmomanometer/sphygmomanometer"
 		},
 		{
-		    "path" : "pages/balance/balance"
+			"path": "pages/index/index"
 		},
 		{
-		    "path" : "pages/printer/printer"
+			"path": "pages/balance/balance"
+		},
+		{
+			"path": "pages/printer/printer"
 		}
-    ],
+	],
 	"globalStyle": {
 		"mp-alipay": {
 			/* 支付宝小程序特有相关 */

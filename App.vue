@@ -33,8 +33,8 @@
 </script>
 
 <style>
-	@import 'colorui/main.css';
-	@import 'colorui/icon.css';
+	@import 'style/colorui/main.css';
+	@import 'style/colorui/icon.css';
 	@import 'style/myicon.css';
 
 	.bottom {

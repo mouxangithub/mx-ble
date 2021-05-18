@@ -1,10 +1,10 @@
 @font-face {
-  font-family: "mx"; /* Project id 2522138 */
-  src: url('~@/style/iconfont.eot?t=1619755152999'); /* IE9 */
-  src: url('~@/style/iconfont.eot?t=1619755152999#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('~@/style/iconfont.woff?t=1619755152999') format('woff'),
-       url('~@/style/iconfont.ttf?t=1619755152999') format('truetype'),
-       url('~@/style/iconfont.svg?t=1619755152999#mx') format('svg');
+  font-family: 'mx';  /* Project id 2522138 */
+  src: url('//at.alicdn.com/t/font_2522138_b2rbiirhe5s.eot?t=1621245556122'); /* IE9 */
+  src: url('//at.alicdn.com/t/font_2522138_b2rbiirhe5s.eot?t=1621245556122#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('//at.alicdn.com/t/font_2522138_b2rbiirhe5s.woff?t=1621245556122') format('woff'),
+       url('//at.alicdn.com/t/font_2522138_b2rbiirhe5s.ttf?t=1621245556122') format('truetype'),
+       url('//at.alicdn.com/t/font_2522138_b2rbiirhe5s.svg?t=1621245556122#mx') format('svg');
 }
  
 [class*="mx-"] {
@@ -20,4 +20,8 @@
 
 .mx-balance:before {
 	content: "\e612";
+}
+
+.mx-sphygmomanometer{
+	content: "\e614";
 }

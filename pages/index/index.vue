@@ -8,7 +8,7 @@
 					v-for="(item,index) in elements" :key="index">
 					<view class="nav-title">{{item.title}}</view>
 					<view class="nav-name">{{item.name}}</view>
-					<text :class="item.cuIcon"></text>
+					<text :class="'mx-' + item.name"></text>
 				</navigator>
 			</view>
 		</scroll-view>
@@ -22,14 +22,17 @@
 				elements: [{
 						title: '电子秤',
 						name: 'balance',
-						color: 'blue',
-						cuIcon: 'mx-balance'
+						color: 'blue'
 					},
 					{
 						title: '打印机',
 						name: 'printer',
-						color: 'green',
-						cuIcon: 'mx-printer'
+						color: 'green'
+					},
+					{
+						title: '血压仪',
+						name: 'sphygmomanometer',
+						color: 'pink'
 					}
 				],
 			};
