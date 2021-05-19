@@ -67,7 +67,6 @@
 				show: false,
 				device: null,
 				paired: [],
-				weight: '0kg',
 				chartsimg: ''
 			};
 		},
@@ -116,7 +115,6 @@
 					})
 					uni.onBLECharacteristicValueChange(function(res) {
 						var weight = getWeight(res.value);
-						self.weight = weight
 						self.changeGaugeData(parseFloat(weight));
 					});
 				} catch (err) {
@@ -125,14 +123,13 @@
 			},
 			// 初始化图表
 			showGauge() {
-				var weight = this.weight
 				balance = new uCharts({
 					$this: _self,
 					canvasId: 'balance',
 					type: 'gauge',
 					fontSize: 11,
 					title: {
-						name: weight,
+						name: '0kg',
 						offsetY: 60
 					},
 					subtitle: {
@@ -181,7 +178,7 @@
 					],
 					series: [{
 						name: '重量',
-						data: parseFloat(weight)
+						data: 0
 					}],
 					animation: true,
 					width: uni.upx2px(500),
