@@ -48,10 +48,7 @@
 
 	function hexCharCodeToStr(hexCharCodeStr) {
 		var trimedStr = hexCharCodeStr.trim();
-		var rawStr =
-			trimedStr.substr(0, 2).toLowerCase() === "0x" ?
-			trimedStr.substr(2) :
-			trimedStr;
+		var rawStr = trimedStr.substr(0, 2).toLowerCase() === "0x" ? trimedStr.substr(2) : trimedStr;
 		var len = rawStr.length;
 		if (len % 2 !== 0) {
 			return "Illegal Format ASCII Code!";
@@ -75,18 +72,15 @@
 			};
 		},
 		onLoad() {
-			_self = this;
+			// 初始化图标
 			this.showGauge();
+			// 转换成图片
 			balance.addEventListener('renderComplete', () => {
 				this.canvasToTempFilePath()
 			});
 		},
-		watch: {
-			weight(e) {
-				this.changeGaugeData(parseFloat(e));
-			}
-		},
 		methods: {
+			// 打开设备弹窗搜索蓝牙
 			opble() {
 				this.show = true
 			},
@@ -121,9 +115,13 @@
 						characteristicId: item.characteristicId
 					})
 					uni.onBLECharacteristicValueChange(function(res) {
-						self.weight = blews.getWeight(res.value);
+						var weight = getWeight(res.value);
+						self.weight = weight
+						self.changeGaugeData(parseFloat(weight));
 					});
-				} catch (err) {}
+				} catch (err) {
+					common.showToast('监听重量异常');
+				}
 			},
 			// 初始化图表
 			showGauge() {
