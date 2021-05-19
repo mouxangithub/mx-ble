@@ -88,24 +88,28 @@
 			};
 		},
 		onLoad() {
-			// 弹出说明弹窗
-			setTimeout(() => {
-				clearInterval(time)
-				var t = 10
-				this.dom = true
-				this.countdown = t + 's'
-				time = setInterval(() => {
-					t -= 1
+			// 第一次进入弹出说明弹窗
+			var dom = uni.getStorageSync('dom')
+			if (!dom) {
+				setTimeout(() => {
+					clearInterval(time)
+					var t = 10
+					this.dom = true
 					this.countdown = t + 's'
-					if (t == 0) {
-						clearInterval(time)
-						this.dom = false
-						setTimeout(() => {
-							this.countdown = ''
-						}, 1000)
-					}
-				}, 1000)
-			}, 800)
+					time = setInterval(() => {
+						t -= 1
+						this.countdown = t + 's'
+						if (t == 0) {
+							clearInterval(time)
+							this.dom = false
+							uni.setStorageSync('dom', true)
+							setTimeout(() => {
+								this.countdown = ''
+							}, 1000)
+						}
+					}, 1000)
+				}, 800)
+			}
 		},
 		methods: {
 			// 打开蓝牙弹窗搜索
@@ -127,10 +131,13 @@
 			},
 			// 关闭说明弹窗
 			closedom() {
-				clearInterval(time)
-				setTimeout(() => {
-					this.countdown = ''
-				}, 1000)
+				if (this.countdown) {
+					clearInterval(time)
+					setTimeout(() => {
+						this.countdown = ''
+					}, 1000)
+					uni.setStorageSync('dom', true)
+				}
 				this.dom = false
 			},
 			// 连接设备

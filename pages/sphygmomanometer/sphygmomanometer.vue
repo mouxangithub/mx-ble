@@ -28,7 +28,7 @@
 				<view class="right">0</view>
 			</view>
 		</view>
-		<view class="flex justify-center bottom">
+		<view class="flex justify-center" style="position: fixed;bottom: 80rpx;width: 100%;">
 			<view class="outter-circle">
 				<button class="parts bg-blue cu-btn shadow">
 					<text class="rotate">开始测量</text>
@@ -51,12 +51,16 @@
 </template>
 
 <script>
+	import common from '@/common/common.js';
 	export default {
 		data() {
 			return {
 				show: false,
 				device: null
 			}
+		},
+		onLoad() {
+			common.showToast('该功能暂未完善');
 		},
 		methods: {
 			// 连接设备
